@@ -6,7 +6,7 @@ import numpy as np
 import time
 
 # ---------------- PAGE CONFIG ----------------
-st.set_page_config(page_title="Color Wand Tracker v4", layout="wide")
+st.set_page_config(page_title="Color Wand Tracker", layout="wide")
 
 # ---------------- SESSION STATE ----------------
 if "snapshot" not in st.session_state:
@@ -18,15 +18,10 @@ if "recording" not in st.session_state:
 
 # ---------------- HEADER ----------------
 st.markdown("""
-<h1 style='text-align:left;'>🎨 Color Wand Tracker System (v4)</h1>
-
-<p style='text-align:left; opacity:0.75; font-size:15px;'>
-Real-time computer vision tracking + recording dashboard
-</p>
+<h1 style='text-align:left;'>🪄 Color Wand Tracker System</h1>
 
 <hr>
 """, unsafe_allow_html=True)
-
 
 # ---------------- VIDEO PROCESSOR ----------------
 class ColorTracker(VideoProcessorBase):
@@ -41,7 +36,14 @@ class ColorTracker(VideoProcessorBase):
 
     def recv(self, frame):
         img = frame.to_ndarray(format="bgr24")
-        img = cv2.resize(img, (640, 480))
+
+        # Mirror camera for natural wand movement
+        img = cv2.flip(img, 1)
+
+        # Lower resolution for better Render performance
+        img = cv2.resize(img, (480, 360))
+
+        
 
         # ---------------- FPS ----------------
         current_time = time.time()
@@ -92,7 +94,7 @@ class ColorTracker(VideoProcessorBase):
 
                 self.trail.append(center)
 
-                if len(self.trail) > 60:
+                if len(self.trail) > 30:
                     self.trail.pop(0)
 
                 self.activity = min(self.activity + 2, 100)
@@ -236,3 +238,16 @@ with right:
         if ctx.video_processor:
             ctx.video_processor.trail = []
             ctx.video_processor.activity = 0
+            
+            
+            # ---------------- FOOTER ----------------
+st.markdown("---")
+
+st.markdown(
+    """
+    <div style='text-align:center; font-size:11px; color:gray;'>
+        Created by Ntiamoah & Richard
+    </div>
+    """,
+    unsafe_allow_html=True
+)
